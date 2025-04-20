@@ -7,7 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.api.doit.exception.CustomAuthenticationEntryPoint;
+import org.api.doit.exception.handler.CustomAuthenticationEntryPoint;
 import org.api.doit.exception.JwtExpiredException;
 import org.api.doit.exception.JwtInvalidException;
 import org.api.doit.security.CustomUserDetailsService;

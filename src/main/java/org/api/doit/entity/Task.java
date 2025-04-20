@@ -21,15 +21,19 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "title", nullable = false)
     @Setter
-    private String name;
+    private String title;
+
+    @Column(name="description", nullable = true)
+    @Setter
+    private String description;
 
     @Column(name = "completed", nullable = false)
     @Setter
     private boolean completed = false;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @Setter
     private User user;
@@ -48,11 +52,12 @@ public class Task {
     /**
      * Constructor for creating a Task with a name and associated user.
      *
-     * @param taskName the name of the task
-     * @param user     the user who owns the task
+     * @param title the name of the task
+     * @param user the user who owns the task
      */
-    public Task(String taskName, User user) {
-        name = taskName;
+    public Task(String title, String description, User user) {
+        this.title = title;
+        this.description = description;
         this.user = user;
     }
 

@@ -1,4 +1,4 @@
-package org.api.doit.exception;
+package org.api.doit.exception.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -20,13 +20,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        data.put("error", "Unauthorized");
-        data.put("message", authException.getMessage());
-        data.put("path", request.getRequestURI());
-        data.put("method", request.getMethod());
-        data.put("timestamp", Instant.now().toString());
+        Map<String, Object> data =
+                GlobalExceptionBuilder.build(
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Unauthorized",
+                        authException.getMessage(),
+                        request.getRequestURI(),
+                        request.getMethod());
 
         new ObjectMapper().writeValue(response.getOutputStream(), data);
     }

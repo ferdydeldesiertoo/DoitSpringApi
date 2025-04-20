@@ -1,6 +1,6 @@
 package org.api.doit.security;
 
-import org.api.doit.exception.CustomAuthenticationEntryPoint;
+import org.api.doit.exception.handler.CustomAuthenticationEntryPoint;
 import org.api.doit.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +55,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((request) -> request
-                        .requestMatchers("/api/v1/doit/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling((ex) -> ex
