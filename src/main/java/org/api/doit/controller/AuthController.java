@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller responsible for authentication operations such as registration and login.
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -18,13 +21,23 @@ public class AuthController {
         this.userService = userService;
     }
 
+    /**
+     * Handles user registration requests.
+     *
+     * @param registerRequest the request body containing registration details
+     * @return the created user or error response
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        userService.createUser(registerRequest);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(registerRequest));
     }
 
+    /**
+     * Handles user login requests.
+     *
+     * @param loginRequest the request body containing login credentials
+     * @return the login response including a JWT token if successful
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(loginRequest));

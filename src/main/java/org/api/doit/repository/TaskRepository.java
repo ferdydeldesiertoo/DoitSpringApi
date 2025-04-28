@@ -21,21 +21,7 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
      */
     List<Task> findByUserIdOrderByCreatedAt(UUID userId);
 
-    /**
-     * Retrieves all incomplete tasks for a specific user ordered by their creation date.
-     *
-     * @param userId the ID of the user whose incomplete tasks are to be retrieved
-     * @return a list of incomplete tasks for the specified user
-     */
-    List<Task> findByUserIdAndCompletedFalseOrderByCreatedAt(UUID userId);
-
-    /**
-     * Retrieves all tasks for a specific user (including completed tasks).
-     *
-     * @param userId the ID of the user whose tasks are to be retrieved
-     * @return a list of tasks for the specified user
-     */
-    List<Task> findByUserId(UUID userId);
+    List<Task> findByUserIdAndCompletedOrderByCreatedAt(UUID userId, boolean completed);
 
     /**
      * Retrieves a task by its ID and the user ID.

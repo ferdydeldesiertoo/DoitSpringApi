@@ -24,6 +24,7 @@ dependencies {
     implementation("org.projectlombok:lombok")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("io.github.cdimascio:java-dotenv:5.2.2")
 
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

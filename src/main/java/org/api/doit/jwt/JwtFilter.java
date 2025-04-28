@@ -23,6 +23,7 @@ import java.util.UUID;
 
 /**
  * Filter that intercepts each request to validate and authenticate a JWT token.
+ * If the token is valid, it sets the user details in the SecurityContext.
  */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -53,32 +54,51 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String jwt;
-        String id;
-
         try {
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                jwt = authHeader.substring(7);
-                id = jwtService.extractClaim(jwt, "userId", String.class);
+            String authHeader = request.getHeader("Authorization");
 
-                if (jwtService.isTokenValid(jwt) && id != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UUID uuid = UUID.fromString(id);
-                    UserDetails userDetails = customUserDetailsService.loadUserById(uuid);
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                }
+            // Checks if the Authorization header is missing or doesn't start with "Bearer "
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            // Extracts the token from the header (removes "Bearer ")
+            String jwt = authHeader.substring(7);
+
+            // Extracts the userId claim from the token
+            String id = jwtService.extractClaim(jwt, "userId", String.class);
+
+            // Validates token and ensures no previous authentication exists
+            if (jwtService.isTokenValid(jwt) && id != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UUID uuid = UUID.fromString(id); // Parses the string ID into a UUID
+
+                // Loads the UserDetails by user ID
+                UserDetails userDetails = customUserDetailsService.loadUserById(uuid);
+
+                // Creates an authentication token with user details and authorities
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                // Attaches request-specific details to the auth token (e.g., IP, session)
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // Sets the authentication into the security context
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+
+            // Continues the filter chain
             filterChain.doFilter(request, response);
-        } catch(ExpiredJwtException e) {
+
+        } catch (ExpiredJwtException e) {
+            // Token has expired, delegate to custom entry point with specific exception
             customAuthenticationEntryPoint.commence(request, response, new JwtExpiredException("JWT is expired", e));
-        } catch (MalformedJwtException | SignatureException e) {
+        } catch (MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            // Token is invalid, malformed, or has wrong signature
             customAuthenticationEntryPoint.commence(request, response, new JwtInvalidException("Invalid JWT", e));
+        } catch (Exception e) {
+            // Any other unexpected error during token processing
+            customAuthenticationEntryPoint.commence(request, response, new JwtInvalidException("An error occurred while processing JWT", e));
         }
     }
 }
-

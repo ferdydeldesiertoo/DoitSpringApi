@@ -10,4 +10,8 @@ public record LoginRequest(@NotBlank(message = "Username cannot be empty.")
                            @NotBlank(message = "Password cannot be empty.")
                            @Size(min = 8, max = 20, message = "The password must contain between 8 to 20 characters.")
                            String password) {
+    public  LoginRequest {
+        username = username != null ? username.trim() : null;
+        password = password != null ? password.trim() : null;
+    }
 }
